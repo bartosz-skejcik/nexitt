@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import fs from "fs";
 
 export default function usePosts() {
     const [posts, setPosts] = useState<Post[] | null>();
@@ -25,9 +26,18 @@ export default function usePosts() {
         });
     };
 
-    const removeSinglePost = (updatedPost: Post, userId: string) => {
+    const removeSinglePost = async (updatedPost: Post, userId: string) => {
         const updatedPosts = posts?.filter((post) => post.id != updatedPost.id);
         setPosts(updatedPosts);
+        
+        if (updatedPost.imageName) {
+            await axios.delete("/api/delete-image", {
+                data: {
+                    imageName: updatedPost.imageName,
+                },
+            });
+        }
+
         // update the post in the database
         axios.put(`http://192.168.1.3:8080/posts/${updatedPost.id}`, {
             userId,

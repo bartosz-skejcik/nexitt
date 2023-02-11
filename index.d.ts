@@ -13,6 +13,7 @@ interface Post {
     title: string;
     body?: string;
     link?: string;
+    imageName?: string;
     created_at: Date;
     authorId: number;
     upvotes: Array<string>;

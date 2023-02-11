@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import {
@@ -13,6 +14,7 @@ import { shortenTheBigNumbers } from "lib/numbers.helper";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRef, useState } from "react";
+import Image from "next/image";
 
 type Props = {
     post: Post;
@@ -29,13 +31,13 @@ export default function Post({ post, setPosts, index }: Props) {
 
     const [hovered, setHovered] = useState(false);
 
-    const handleRemovePost = (id: number) => {
+    const handleRemovePost = async (id: number) => {
         if (session) {
             setPosts((prev) => {
                 const newPosts = prev?.filter((post) => post.id != id);
                 return newPosts;
             });
-            removeSinglePost(post, session.user.id.toString());
+            await removeSinglePost(post, session.user.id.toString());
         }
     };
 
@@ -159,8 +161,8 @@ export default function Post({ post, setPosts, index }: Props) {
                             className="p-2 h-fit flex flex-col items-center justify-start bg-neutral-50 rounded-xl text-neutral-500 hover:text-red-500 transition duration-300"
                         >
                             <button
-                                onClick={() => {
-                                    handleRemovePost(post.id);
+                                onClick={async () => {
+                                    await handleRemovePost(post.id);
                                 }}
                             >
                                 <TrashIcon className="w-7 h-7" />
@@ -220,6 +222,15 @@ export default function Post({ post, setPosts, index }: Props) {
                         }
                         <ArrowTopRightOnSquareIcon className="w-5 h-5" />
                     </Link>
+                )}
+                {post.imageName && (
+                    <>
+                        <img
+                            src={`/postImages/${post.imageName}`}
+                            alt={post.imageName}
+                            className="w-full xs:w-5/6  sm:w-2/3 h-auto rounded-xl self-center"
+                        />
+                    </>
                 )}
             </button>
         </motion.div>
