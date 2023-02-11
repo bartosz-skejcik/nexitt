@@ -1,91 +1,58 @@
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from './page.module.css'
+/* eslint-disable @next/next/no-img-element */
+"use client";
 
-const inter = Inter({ subsets: ['latin'] })
+import { Post, Navbar, Filters, Create } from "components";
+import { AnimatePresence } from "framer-motion";
+import usePosts from "hooks/usePosts";
+import { sortPostsByDate, sortPostsByUpVotes } from "lib/date.helper";
+import { signOut, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    const [filter, setFilter] = useState("best");
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
+    const { data: session } = useSession();
+    const { posts, setPosts, loading, error } = usePosts();
 
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+    const filteredPosts =
+        filter == "best"
+            ? posts && sortPostsByUpVotes(posts)
+            : posts && sortPostsByDate(posts);
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    return (
+        <section className="flex flex-col items-center justify-start w-screen min-h-screen bg-gradient-to-tr from-blue-600 via-pink-600 to-amber-500">
+            <Navbar />
+            <section className="w-screen flex items-center justify-start flex-col gap-5 py-5">
+                <main className="w-11/12 md:w-2/3 lg:w-1/2 xl:w-[40%] gap-5 flex flex-col items-center justify-start">
+                    <Create />
+                    <Filters
+                        filterOption={filter}
+                        setFilterOption={setFilter}
+                    />
+                    <AnimatePresence>
+                        {filteredPosts &&
+                            filteredPosts.map((post: any, index: number) => (
+                                <Post
+                                    key={post.id}
+                                    post={post}
+                                    setPosts={setPosts}
+                                    index={index}
+                                />
+                            ))}
+                    </AnimatePresence>
+                </main>
+            </section>
+            {session?.user ? (
+                <button
+                    onClick={() => {
+                        signOut();
+                    }}
+                >
+                    Sign Out
+                </button>
+            ) : (
+                <a href="/login">Sign In</a>
+            )}
+        </section>
+    );
 }
