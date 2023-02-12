@@ -14,7 +14,6 @@ import { shortenTheBigNumbers } from "lib/numbers.helper";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import Image from "next/image";
 
 type Props = {
     post: Post;
