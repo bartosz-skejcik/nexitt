@@ -16,5 +16,14 @@ interface Post {
     imageName?: string;
     created_at: Date;
     authorId: number;
-    upvotes: Array<string>;
+    upvotes: Array<number>;
+    comments: Array<Comment>;
+}
+
+interface Comment {
+    id: number;
+    body: string;
+    created_at: Date;
+    post_id: number;
+    user: { id: number; username: string; full_name: string; avatar: string };
 }

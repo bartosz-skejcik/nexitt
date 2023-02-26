@@ -44,7 +44,7 @@ export default function RootLayout({
                         rtl={false}
                         pauseOnFocusLoss
                         pauseOnHover
-                        theme="light"
+                        theme="dark"
                     />
                     {children}
                 </SessionProvider>

@@ -20,7 +20,7 @@ export default function usePosts() {
         });
         setPosts(updatedPosts);
         // update the post in the database
-        axios.put(`http://192.168.1.3:8080/upvotes/${updatedPost.id}`, {
+        axios.put(`http://localhost:8080/upvotes/${updatedPost.id}`, {
             userId,
             operation,
         });
@@ -29,7 +29,7 @@ export default function usePosts() {
     const removeSinglePost = async (updatedPost: Post, userId: string) => {
         const updatedPosts = posts?.filter((post) => post.id != updatedPost.id);
         setPosts(updatedPosts);
-        
+
         if (updatedPost.imageName) {
             await axios.delete("/api/delete-image", {
                 data: {
@@ -39,7 +39,7 @@ export default function usePosts() {
         }
 
         // update the post in the database
-        axios.put(`http://192.168.1.3:8080/posts/${updatedPost.id}`, {
+        axios.put(`http://localhost:8080/posts/${updatedPost.id}`, {
             userId,
         });
     };
@@ -48,9 +48,7 @@ export default function usePosts() {
         const fetchUser = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(
-                    `http://192.168.1.3:8080/posts`
-                );
+                const response = await axios.get(`http://localhost:8080/posts`);
                 setPosts(response.data);
             } catch (error: any) {
                 setError(error.message);

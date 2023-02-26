@@ -28,7 +28,6 @@ export default function Create({}: Props) {
     const [body, setBody] = useState<string | null>(null);
     const [link, setLink] = useState<string | null>(null);
     const [image, setImage] = useState<any>(null);
-    const [imageName, setImageName] = useState<string | null>(null);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -38,9 +37,8 @@ export default function Create({}: Props) {
             formData.append("file", image);
 
             return await axios
-                .post("http://192.168.1.3:8080/upload", formData)
+                .post("http://localhost:8080/upload/" + "postImages", formData)
                 .then((res) => {
-                    console.log(res);
                     return res.data.filename;
                 })
                 .catch((err) => {
@@ -74,8 +72,10 @@ export default function Create({}: Props) {
             return;
         }
 
+        const imageName = await handleFileUpload();
+
         await axios
-            .post("http://192.168.1.3:8080/posts", {
+            .post("http://localhost:8080/posts", {
                 title:
                     title != null &&
                     title.replace(/\n+/g, "\\n").replace(/'+/g, "\\'"),
@@ -85,14 +85,26 @@ export default function Create({}: Props) {
                         : null,
                 author: session?.user.id,
                 link: link != null ? link : null,
-                imageName: await handleFileUpload(),
+                imageName: imageName != null ? imageName : null,
             })
             .then((res) => {
                 toast.success("Post created successfully!");
             })
-            .catch((err) => {
+            .catch(async (err) => {
                 toast.error("Something went wrong!");
                 console.log(err);
+                await axios
+                    .delete("http://localhost:3000/api/delete-image", {
+                        data: {
+                            imageName,
+                        },
+                    })
+                    .then((res) => {
+                        console.log(res);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
             });
 
         setStep("input");
@@ -105,7 +117,7 @@ export default function Create({}: Props) {
         <div
             className={`flex flex-col md:flex-row ${
                 step != "input" ? "items-end" : "items-center"
-            } justify-center w-full gap-4 py-2 px-4 bg-neutral-100 rounded-xl`}
+            } justify-center w-full gap-4 py-2 px-4 bg-neutral-900 rounded-xl`}
         >
             <div className="flex items-center justify-center gap-2 w-full flex-1">
                 {session?.user.avatar ? (
@@ -117,7 +129,7 @@ export default function Create({}: Props) {
                         className="rounded-full self-start"
                     />
                 ) : (
-                    <div className="w-[40px] self-start aspect-square rounded-full bg-neutral-300/70 flex items-center justify-center">
+                    <div className="w-[40px] self-start aspect-square rounded-full bg-neutral-800/70 flex items-center justify-center">
                         <UserCircleIcon className="w-9 h-9 text-neutral-500" />
                     </div>
                 )}
@@ -140,14 +152,14 @@ export default function Create({}: Props) {
                                 }
                             }}
                             placeholder="What's on your mind?"
-                            className="w-full p-2 rounded-lg outline-none border border-neutral-300/70 bg-neutral-200/40"
+                            className="w-full p-2 rounded-lg outline-none border-2 text-neutral-100 border-neutral-700/70 bg-neutral-800/40"
                         />
                     )}
                     {step === "textarea" && (
                         <div className="flex flex-col items-start justify-center gap-1 w-full">
-                            <h3 className="font-medium">
+                            <h3 className="font-medium text-neutral-400">
                                 Title:{" "}
-                                <span className="text-neutral-700">
+                                <span className="text-neutral-100">
                                     {title}
                                 </span>
                             </h3>
@@ -161,15 +173,15 @@ export default function Create({}: Props) {
                                 onChange={(e) => {
                                     setBody(e.target.value);
                                 }}
-                                className="w-full p-2 rounded-lg outline-none border border-neutral-300/70 bg-neutral-200/40"
+                                className="w-full p-2 rounded-lg outline-none border-2 text-neutral-100 border-neutral-700/70 bg-neutral-800/40"
                             />
                         </div>
                     )}
                     {step === "link" && (
                         <div className="flex flex-col items-start justify-center gap-1 w-full">
-                            <h3 className="font-medium">
+                            <h3 className="font-medium text-neutral-400">
                                 Title:{" "}
-                                <span className="text-neutral-700">
+                                <span className="text-neutral-100">
                                     {title}
                                 </span>
                             </h3>
@@ -184,15 +196,15 @@ export default function Create({}: Props) {
                                 onChange={(e) => {
                                     setLink(e.target.value);
                                 }}
-                                className="w-full p-2 rounded-lg outline-none border border-neutral-300/70 bg-neutral-200/40"
+                                className="w-full p-2 rounded-lg outline-none border-2 text-neutral-100 border-neutral-700/70 bg-neutral-800/40"
                             />
                         </div>
                     )}
                     {step === "image" && (
                         <div className="flex flex-col items-start justify-center gap-1 w-fit flex-2 md:w-full">
-                            <h3 className="font-medium">
+                            <h3 className="font-medium text-neutral-400">
                                 Title:{" "}
-                                <span className="text-neutral-700">
+                                <span className="text-neutral-100">
                                     {title}
                                 </span>
                             </h3>
@@ -200,7 +212,7 @@ export default function Create({}: Props) {
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 10 }}
-                                className="w-full p-2 rounded-lg outline-none border border-neutral-300/70 bg-neutral-200/40"
+                                className="w-full p-2 rounded-lg outline-none border-2 text-neutral-100 border-neutral-700/70 bg-neutral-800/40"
                                 type="file"
                                 name="file"
                                 id="file"

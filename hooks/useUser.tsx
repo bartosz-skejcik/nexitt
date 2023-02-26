@@ -11,7 +11,7 @@ export default function useUser(id: number) {
             setLoading(true);
             try {
                 const response = await axios.get(
-                    `http://192.168.1.3:8080/users/${id}`
+                    `http://localhost:8080/users/${id}`
                 );
                 setUser(response.data);
             } catch (error: any) {

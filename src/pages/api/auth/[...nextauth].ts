@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
                 const { username, password } = credentials;
 
                 const user = axios
-                    .post("http://192.168.1.3:8080/api/login", {
+                    .post("http://localhost:8080/api/login", {
                         username,
                         password,
                     })
